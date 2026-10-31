@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>WHAT IS SONIFY</title>
+    <meta charset="utf-8" />
+	<meta name="description" content="SONIFY" />
+    <link rel="stylesheet" type="text/css" href="css/help_style.css">
+    <link href="http://www.piablumenthal.com/favicon2.ico" rel="ICON">
+		<link rel="stylesheet" type="text/css" href="../fonts/webfont.css">
+    <script src="js/jquery-1.7.2.min.js"></script>
+    <script src="js/jquery-ui-1.8.21.custom.min.js"></script>
+    <script src="js/help_site.js"></script>
+  </head>
+  <body>
+  
+  	<!-- <div id="bg"></div> -->
+  
+    <!--Pagination on the right side-->
+    <nav id="primary">
+      <ul>
+        <li><h1>Goals &amp; Motivations</h1><a class="sectionOne" href="#sectionOne">View</a></li>
+        <li><h1>What is Sonify?</h1><a class="sectionTwo" href="#sectionTwo">View</a></li>
+        <li><h1>Auditory-Visual Associations</h1><a class="sectionThree" href="#sectionThree">View</a></li>
+        <li><h1>Sonification</h1><a class="sectionFour" href="#sectionFour">View</a></li>
+        <li><h1>Parameter Mappings</h1><a class="sectionFive" href="#sectionFive">View</a></li>
+        <li><h1>Mapping Scheme</h1><a class="sectionSix" href="#sectionSix">View</a></li>
+        <li><h1>HTML5</h1><a class="sectionSeven" href="#sectionSeven">View</a></li>
+        <li><h1>Evaluations</h1><a class="sectionEight" href="#sectionEight">View</a></li>
+        <li><h1>Improvements</h1><a class="sectionNine" href="#sectionNine">View</a></li>
+        <li><h1>Future Work</h1><a class="sectionTen" href="#sectionTen">View</a></li>
+      </ul>
+    </nav>
+  
+    <section id="sectionOne">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Goals &amp; Motivations</h2>
+        <p style="line-height:1.5em;">
+          &bull; Create a musical sonification tool <br />
+          &bull; Explore auditory-visual associations<br />
+          &bull; Make it instantly accessible to a large audience<br />
+          &bull; Write once, run anywhere<br />
+        </p>
+      </div>
+    </section>
+    
+    <section id="sectionTwo">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>What is Sonify?</h2>
+        <p>
+        <img id="logo" src="images/sonify_lg.png" width="248" height="233" alt="Sonify" />
+        Sonify is a website that uses the <a href="https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html" target="_blank">Web Audio API</a> to synthesize sounds based on images.</p>
+        <p>It's basically an <a href="http://www.pixastic.com/" target="_blank">image editor</a> paired with a <a href="http://chromium.googlecode.com/svn/trunk/samples/audio/wavetable-synth.html" target="_blank">wavetable synth</a> for the purpose of translating images into simple melodies.</p>
+      </div>
+    </section>	
+    
+    <section id="sectionThree">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Auditory-Visual Associations</h2>
+        <p>
+        Based on the belief that both color and sound evoke an emotional response on some level in the beholder
+        </p>
+        <p>
+        "The sound of colours is so definite that it would be hard to find anyone who would try to express bright yellow in the bass notes or dark lake in the treble."<br /><br />&mdash;Kandinsky, <i>Concerning The Spiritual In Art</i>
+        </p>
+        <h2>General Moods Associated with Colors</h2>
+        <p>
+        Red = Power, Energy, Excitement<br />
+        Orange = Confident, Creative<br />
+        Yellow = Cheerful, Optimistic<br />
+        Green = Harmony, Balance<br />
+        Blue = Honest, Calming, Soothing<br />
+        Violet = Majestic, Inspiration<br />
+        </p>
+      </div>
+    </section>
+    
+    <section id="sectionFour">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Sonification</h2>
+        <p>
+        "The transformation of data relations into perceived relations in an acoustic signal for the purposes of facilitating communication or interpretation."<br />
+        </p>
+        <p>
+        Guiding principles of sonification are an amalgam of perceptual observations drawn from these multidisciplinary fields
+        </p>
+        <p>
+        Research to date has yet to specify a complete paradigm for sonification
+        </p>
+      </div>
+    </section>
+    
+    <section id="sectionFive">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Parameter Mappings</h2>
+        <p>
+          Hue = Pitch Detune Amount<br />
+          Saturation = Voice Separation<br />
+          Lightness = Note Gain<br />
+          Contrast = Note Gain<br />
+          Brightness = Note Gain<br />
+          Red = Square Wave<br />
+          Green = Sine Wave<br />
+          Blue = Triangle Wave<br />
+          Blur = Reverberation Amount<br />
+          Sharpen = Amplitude Attack/Decay Amounts<br />
+          Glow = Note Gain<br />
+          Noise = Delay Amount<br />
+        </p>
+      </div>
+    </section>
+    
+    <section id="sectionSix">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Mapping Scheme</h2>
+        <p style="line-height:1.5em;"><img id="imgGrid" src="images/image_grid.png" width="510" height="364" alt="Image Grid" />
+        
+          &bull; Inverse spectrogram mapping<br />
+          &bull; Positive polarity<br />
+          &bull; Scaling between C3 - C6<br />
+          &bull; Pentatonic<br />
+          &bull; 16 1/8th note sequence<br />
+        </p>
+      </div>
+    </section>
+    
+    <section id="sectionSeven">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>HTML5</h2>
+        <p style="line-height:1.5em;">
+           &bull; &lt;canvas&gt; &amp; getImageData()<br />
+           &bull; Sonify your <a href="http://sonify.net/draw/" target="_blank">drawings</a> on the canvas!<br />
+           &bull; Browser support at <a href="http://caniuse.com/#feat=audio-api" target="_blank">caniuse.com</a>
+        </p>
+        
+        <h2>AWESOME WEB AUDIO API DEMOS</h2>
+        <p style="line-height:1.5em;">
+           &bull; <a href="http://static.echonest.com/InfiniteGangnamStyle/" target="_blank">Infinite Gangnam Style</a><br />
+           &bull; <a href="http://www.jamwithchrome.com/" target="_blank">Jam with Chrome</a><br />
+           &bull; <a href="http://labs.dinahmoe.com/ToneCraft/" target="_blank">ToneCraft</a><br />
+           &bull; More demos can be found <a href="http://chromium.googlecode.com/svn/trunk/samples/audio/samples.html" target="_blank">here</a>
+        </p>
+
+      </div>
+    </section>
+    
+    <section id="sectionEight">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Evaluation</h2>
+        <p>
+          Spectrograms!
+        </p>
+        <p>
+          <img src="images/spectrograms.png" width="708" height="1122" alt="Spectrograms"/>
+        </p>
+      </div>
+    </section>
+    
+    <section id="sectionNine">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Improvements</h2>
+        <p style="line-height:1.5em;">
+          &bull; Color shape detection<br />
+		  &bull; Volume curve<br />
+		  &bull; Stopping those site crashes!!<br />
+
+        </p>
+      </div>
+    </section>
+    
+    <section id="sectionTen">
+      <!--<div class="sonify"></div>-->
+      <div class="description">
+        <h2>Future Work</h2>
+        <p style="line-height: 1.5em;">
+          <img id="mobile" src="images/mobile_versions_with_ribbon.png" width="400" height="334" alt="Mobile: Coming Soon!" />
+          &bull; Mobile-friendly versions of Sonify<br />
+          &bull; Scanning vs. probing sonifications<br />
+          &bull; Mapping flexibility<br />
+          &bull; Database for storing and sharing<br />
+        </p>
+      </div>
+    </section>
+    
+  </body>
+</html>

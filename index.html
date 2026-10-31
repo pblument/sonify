@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<!--&copy; 2015 by PIA BLUMENTHAL-->
+		<title>SONIFY</title>
+
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta property="og:site_name" content="Sonify">
+		<meta property="og:description" content="Turn your pictures into sound!">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="http://sonify.net">
+		<meta property="og:title" content="Sonify">
+		<meta property="og:image" content="http://sonify.net/images/sonify_fb.png" />
+		<meta name="viewport" content="width=device-width, minimum-scale=0, maximum-scale=1.0">
+
+		<link href="favicon.ico" rel="ICON">
+		<link rel="image_src" href="images/sonify_fb.png" / >
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/introjs.css">
+
+		<script type="text/javascript">
+			  var _gaq = _gaq || [];
+			  _gaq.push(['_setAccount', 'UA-36737299-1']);
+			  _gaq.push(['_trackPageview']);
+			  (function() {
+			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			  })();
+			</script>
+  </head>
+  <body>
+
+  	<div id="bg"></div>
+		<div class="loader" style="display: none;"></div>
+  	<section style="display: block;">
+
+			<!-- BACKGOUND -->
+			<div class="panels">
+        <div class="leftSide"></div>
+        <div class="rightSide"></div>
+      </div>
+	    <div class="handle"></div>
+			<!-- END BACKGOUND -->
+
+			<!-- CONTENT -->
+      <div class="content">
+
+      	<div class="player" data-step="1" data-intro="<b>1/6:</b> Welcome to Sonify! Please follow this short tutorial to learn how to turn your pictures into musical sound.">
+          <canvas id="theCanvas" width="460" height="320">Your browser does not support the HTML 5 Canvas.</canvas>
+					<div id="timeline"></div>
+					<div id="theGrid"></div>
+        </div>
+
+				<!-- TRANSPORT -->
+        <div class="transport" data-step="6" data-intro="<b>6/6:</b> This is the transport section. From here, you can upload an image from your desktop, flip it vertically or horizontally, reset all effects sliders and access this tutorial at any time. You can also view the grid display to see exactly how sound is being mapped. Each block represents averaged RGB data.<br /><br /> Now you have all the tools you need to listen to your pictures. Have fun!">
+          <a id="playBack" class="playBtn" href="#" data-step="2" data-intro="<b>2/6:</b> Just press this button to hear what your picture sounds like... Cool, right?">PLAY</a>
+          <input type="file" id="uploader" class="uploadBtn" value="Upload">
+          <a id="resetBtn" href="#" title="Reset Image">RESET IMAGE</a>
+          <a id="helpBtn" class="" href="#" title="Help" onclick="javascript:introJs().start();return false;">HELP</a>
+					<a href="#" id="flipVertical" class="locked" title="Flip Vertical">FLIP VERTICAL</a>
+					<a href="#" id="flipHorizontal" class="locked" title="Flip Horizontal">FLIP HORIZONTAL</a>
+					<a href="#" id="grid" title="Display Grid">DISPLAY GRID</a>
+				</div>
+
+				<div id="line-top"></div>
+
+				<div id="volumeControl">
+					<div class="control">
+          	 <p>VOLUME</p>
+             <span class="volumeTip tooltip"></span>
+             <div id="volume" class="slider" data-default="50"></div>
+          </div>
+				</div>
+				<!-- END TRANSPORT -->
+
+				<div id="line-bottom"></div>
+
+        <!-- LEFT SLIDER BANK -->
+        <div class="sliderBankLeft" data-step="3" data-intro="<b>3/6:</b> Try adjusting some sliders to see how the sound changes as your picture changes." data-position="right"></div>
+
+        <!-- PRESET IMGS -->
+        <div class="filterBank" data-step="5" data-intro="<b>5/6:</b> To give you a better idea of what's happening sonically, test out these different present pictures. How does the placement of color in the picture change the sound?" data-position="top"></div>
+
+				<!-- RIGHT SLIDER BANK -->
+        <div class="sliderBankRight" data-step="4" data-intro="<b>4/6:</b> Try using these effects, too." data-position="left"></div>
+
+        <div class="footer">
+		 	  <p>&copy; 2019 by <a href="http://www.piablumenthal.com" target="_blank">Pia Blumenthal</a></p>
+	   	</div>
+		</div>
+		<!--END CONTENT-->
+
+    </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+    <script src="js/pixastic.core.js"></script>
+    <script src="js/pixastic.complete.js"></script>
+    <script src="js/fft.js"></script>
+    <script src="js/bpm-delay.js"></script>
+    <script src="js/waveshaper.js"></script>
+    <script src="js/wavetable.js"></script>
+    <script src="js/google-waveform.js"></script>
+	  <script src="js/script.js"></script>
+    <script src="js/sonify.js"></script>
+		<script src="js/intro.js"></script>
+	</body>
+</html>
