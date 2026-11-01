@@ -721,8 +721,9 @@ input[type=range].slider::-moz-range-thumb {
 	border-radius: 14px !important;
 	box-shadow: 0 24px 60px rgba(0,0,0,.6) !important;
 	padding: 4px 4px 10px !important;
-	min-width: 260px !important;
-	max-width: 340px !important;
+	width: 320px !important;
+	min-width: 320px !important;
+	max-width: calc(100vw - 28px) !important;
 	font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 .introjs-tooltiptext {
@@ -732,7 +733,7 @@ input[type=range].slider::-moz-range-thumb {
 	color: #cfd3d8 !important;
 }
 .introjs-tooltiptext b { color: #fff; }
-.introjs-tooltipbuttons { border-top: 1px solid #262b32 !important; padding: 12px 18px !important; text-align: right !important; }
+.introjs-tooltipbuttons { border-top: 1px solid #262b32 !important; padding: 12px 18px !important; text-align: right !important; white-space: nowrap !important; }
 .introjs-button {
 	background: #1b1f26 !important;
 	color: #f3f4f1 !important;

@@ -59,8 +59,8 @@
 			display: flex; align-items: center; justify-content: space-between;
 			gap: 16px; padding: 14px 0; flex-wrap: wrap;
 		}
-		.wordmark { font-weight: 700; letter-spacing: .14em; font-size: 15px; border: 0; }
-		.wordmark .dot { background: var(--spectrum); -webkit-background-clip: text; background-clip: text; color: transparent; }
+		.wordmark { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: -0.01em; font-size: 17px; border: 0; }
+		.wordmark-logo { width: 22px; height: 22px; display: block; border-radius: 5px; }
 		nav.jump { display: flex; gap: 18px; flex-wrap: wrap; }
 		nav.jump a { font-family: var(--mono); font-size: 12px; color: var(--muted); border: 0; letter-spacing: .02em; }
 		nav.jump a:hover { color: var(--ink); }
@@ -104,8 +104,9 @@
 
 		/* color moods */
 		.moods { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 8px; }
-		.mood { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--panel); }
-		.mood i { width: 18px; height: 18px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 14px -2px currentColor; }
+		.mood { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--panel); }
+		.mood i { width: 14px; height: 14px; border-radius: 50%; flex: 0 0 auto; margin-top: 4px; background: currentColor; }
+		.mood > div { display: flex; flex-direction: column; gap: 4px; }
 		.mood b { font-size: 14px; font-weight: 600; }
 		.mood span { font-size: 13px; color: var(--muted); }
 
@@ -126,6 +127,16 @@
 		figure { margin: 0; }
 		figure img { width: 100%; height: auto; display: block; border: 1px solid var(--hairline); border-radius: 12px; background: var(--panel); }
 		figure canvas { width: 100%; height: auto; display: block; border: 1px solid var(--hairline); border-radius: 12px; background: #000; }
+		.spec-stage { position: relative; }
+		.spec-cta {
+			position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+			font-family: var(--mono); font-size: 13px; letter-spacing: .04em; color: #fff;
+			background: linear-gradient(90deg, #ff5a5a, #5a8dff); border: 0; border-radius: 999px;
+			padding: 13px 26px; cursor: pointer; box-shadow: 0 10px 34px rgba(0,0,0,.55);
+			transition: transform .15s ease, filter .15s ease;
+		}
+		.spec-cta:hover { filter: brightness(1.08); transform: translate(-50%, -50%) scale(1.03); }
+		.spec-stage.playing .spec-cta { display: none; }
 		figcaption { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
 		.specs { list-style: none; margin: 0; padding: 0; }
 		.specs li { padding: 11px 0; border-top: 1px solid var(--hairline); display: flex; gap: 12px; font-size: 15px; }
@@ -201,7 +212,7 @@
 
 	<header class="site">
 		<div class="wrap">
-			<a class="wordmark" href="#top">SONIFY<span class="dot">.</span></a>
+			<a class="wordmark" href="#top"><img class="wordmark-logo" src="favicon-32.png" alt="">Sonify</a>
 			<nav class="jump">
 				<a href="#what">What</a>
 				<a href="#why">Why</a>
@@ -241,15 +252,15 @@
 				&ldquo;The sound of colours is so definite that it would be hard to find anyone who would try to express bright yellow in the bass notes, or dark lake in the treble.&rdquo;
 				<cite>&mdash; Wassily Kandinsky, <i>Concerning the Spiritual in Art</i></cite>
 			</blockquote>
-			<p class="lead">Sonification &mdash; turning data relations into sound you can perceive &mdash; has no single agreed paradigm. Sonify&rsquo;s mapping is an amalgam of perceptual observations drawn from several fields, so this is as much an experiment as a tool.</p>
+			<p class="lead">Sonification &mdash; turning data relations into sound you can perceive &mdash; has no single agreed paradigm. That said, Sonify&rsquo;s mapping is based on creative intuition.</p>
 			<h3>General moods associated with colors</h3>
 			<div class="moods">
-				<div class="mood" style="color:#ff5a5a"><i></i><div><b>Red</b> &nbsp;<span>Power, energy, excitement</span></div></div>
-				<div class="mood" style="color:#ff9f45"><i></i><div><b>Orange</b> &nbsp;<span>Confident, creative</span></div></div>
-				<div class="mood" style="color:#ffd84d"><i></i><div><b>Yellow</b> &nbsp;<span>Cheerful, optimistic</span></div></div>
-				<div class="mood" style="color:#39d98a"><i></i><div><b>Green</b> &nbsp;<span>Harmony, balance</span></div></div>
-				<div class="mood" style="color:#5a8dff"><i></i><div><b>Blue</b> &nbsp;<span>Honest, calming, soothing</span></div></div>
-				<div class="mood" style="color:#b57bff"><i></i><div><b>Violet</b> &nbsp;<span>Majestic, inspiring</span></div></div>
+				<div class="mood" style="color:#ff5a5a"><i></i><div><b>Red</b><span>Power, energy, excitement</span></div></div>
+				<div class="mood" style="color:#ff9f45"><i></i><div><b>Orange</b><span>Confident, creative</span></div></div>
+				<div class="mood" style="color:#ffd84d"><i></i><div><b>Yellow</b><span>Cheerful, optimistic</span></div></div>
+				<div class="mood" style="color:#39d98a"><i></i><div><b>Green</b><span>Harmony, balance</span></div></div>
+				<div class="mood" style="color:#5a8dff"><i></i><div><b>Blue</b><span>Honest, calming, soothing</span></div></div>
+				<div class="mood" style="color:#b57bff"><i></i><div><b>Violet</b><span>Majestic, inspiring</span></div></div>
 			</div>
 		</div>
 	</section>
@@ -304,8 +315,11 @@
 			<h2>The output as a spectrogram.</h2>
 			<div class="cols">
 				<figure>
-					<canvas id="liveSpec" width="1000" height="360"></canvas>
-					<figcaption>Live spectrogram of the player output &mdash; press SONIFY in the player above.</figcaption>
+					<div class="spec-stage" id="specStage">
+						<canvas id="liveSpec" width="1000" height="360"></canvas>
+						<button type="button" class="spec-cta" id="specPlay">Play the Sonify&nbsp;&#9654;</button>
+					</div>
+					<figcaption>Live spectrogram of the player output.</figcaption>
 				</figure>
 				<ul class="specs">
 					<li><b>Reading</b> Inverse spectrogram mapping</li>
@@ -351,10 +365,22 @@
 				ctx.fillRect(SW-3, y, 3, 1);
 			}
 		}
+		var stage = document.getElementById('specStage');
 		window.addEventListener('message', function(e){
 			if(!e.data || e.data.type !== 'sonify-spectrum' || !e.data.data) return;
+			if(stage) stage.classList.add('playing');   // hide the CTA once sound is flowing
 			draw(e.data.data);
 		});
+
+		// CTA over the spectrogram starts the player (same-origin, synchronous
+		// within this click so the audio context may resume).
+		var playBtn = document.getElementById('specPlay');
+		var frame = document.querySelector('.player-frame');
+		if(playBtn && frame) {
+			playBtn.addEventListener('click', function(){
+				try { if(frame.contentWindow.sonifyPlay) frame.contentWindow.sonifyPlay(); } catch(err) {}
+			});
+		}
 	})();
 	</script>
 </body>

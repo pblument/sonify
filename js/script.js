@@ -180,6 +180,13 @@ $(document).ready(function() {
 		if(typeof introJs === 'function') introJs().start();
 	});
 
+	// Let a host page start playback (e.g. the spectrogram CTA). Triggering the
+	// real play button runs the normal start path, including context.resume().
+	window.sonifyPlay = function() {
+		var $pb = $('#playBack');
+		if($pb.length && !$pb.hasClass('stopBtn')) $pb[0].click();
+	};
+
 });
 
 function initSynth(filterArray) {
