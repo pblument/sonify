@@ -1,138 +1,348 @@
 <!DOCTYPE html>
-<html>
-  <head>
-		<!--&copy; 2015 by PIA BLUMENTHAL-->
-		<title>SONIFY</title>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Sonify &mdash; turn pictures into sound</title>
+	<meta name="description" content="Sonify turns pictures into sound — a web experiment pairing an image editor with a wavetable synth using the Web Audio API.">
 
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta property="og:site_name" content="Sonify">
-		<meta property="og:description" content="Turn your pictures into sound!">
-		<meta property="og:type" content="website">
-		<meta property="og:url" content="https://sonify.net">
-		<meta property="og:title" content="Sonify">
-		<meta property="og:image" content="https://sonify.net/images/sonify_fb.png" />
-		<meta name="viewport" content="width=device-width, minimum-scale=0, maximum-scale=1.0">
+	<link rel="icon" href="favicon.ico" sizes="any">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+	<link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-		<link rel="icon" href="favicon.ico" sizes="any">
-		<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-		<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
-		<link rel="apple-touch-icon" href="apple-touch-icon.png">
-		<link rel="image_src" href="images/sonify_fb.png" />
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-		<link rel="stylesheet" type="text/css" href="css/introjs.css">
-  </head>
-  <body>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-		<!-- Native SVG filter the canvas uses for the effects CSS filter
-		     functions can't express: per-channel RGB gain, sharpen, glow and
-		     noise. All four are identity/no-op at their default slider values. -->
-		<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-			<defs>
-				<filter id="imageFX" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-					<!-- per-channel RGB gain -->
-					<feColorMatrix id="fxChannel" type="matrix"
-						values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="rgb"/>
-					<!-- sharpen (identity kernel at default) -->
-					<feConvolveMatrix id="fxSharpen" in="rgb" order="3" divisor="1"
-						preserveAlpha="true" edgeMode="duplicate"
-						kernelMatrix="0 0 0  0 1 0  0 0 0" result="sharp"/>
-					<!-- glow / bloom: blur, scale brightness by slope, screen over -->
-					<feGaussianBlur in="sharp" stdDeviation="4" result="gblur"/>
-					<feComponentTransfer in="gblur" result="gbright">
-						<feFuncA id="fxGlow" type="linear" slope="0"/>
-					</feComponentTransfer>
-					<feBlend in="sharp" in2="gbright" mode="screen" result="glowed"/>
-					<!-- monochrome noise overlay, opacity scaled by slope -->
-					<feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="4" result="noise"/>
-					<feColorMatrix in="noise" type="saturate" values="0" result="monoNoise"/>
-					<feComponentTransfer in="monoNoise" result="noiseA">
-						<feFuncA id="fxNoise" type="linear" slope="0"/>
-					</feComponentTransfer>
-					<feComposite in="noiseA" in2="glowed" operator="over"/>
-				</filter>
-			</defs>
-		</svg>
+	<style>
+		:root {
+			--bg: #000;
+			--panel: #15181d;
+			--panel-2: #1b1f26;
+			--ink: #f3f4f1;
+			--muted: #9aa1a9;
+			--faint: #6b7178;
+			--hairline: #262b32;
+			--red: #ff5a5a;
+			--green: #39d98a;
+			--blue: #5a8dff;
+			--sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			--mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+			--spectrum: linear-gradient(90deg, #ff5a5a 0%, #ffb648 28%, #39d98a 55%, #5a8dff 100%);
+		}
 
-  	<div id="bg"></div>
-		<div class="loader" style="display: none;"></div>
-  	<section style="display: block;">
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; }
+		body {
+			margin: 0;
+			background: var(--bg);
+			color: var(--ink);
+			font-family: var(--sans);
+			font-size: 17px;
+			line-height: 1.65;
+			-webkit-font-smoothing: antialiased;
+			text-rendering: optimizeLegibility;
+		}
+		a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--faint); transition: border-color .15s, color .15s; }
+		a:hover { border-color: var(--ink); }
 
-			<!-- BACKGOUND -->
-			<div class="panels">
-        <div class="leftSide"></div>
-        <div class="rightSide"></div>
-      </div>
-	    <div class="handle"></div>
-			<!-- END BACKGOUND -->
+		.wrap { width: min(100% - 40px, 860px); margin-inline: auto; }
 
-			<!-- CONTENT -->
-      <div class="content">
+		/* ---- Header ---- */
+		header.site {
+			position: sticky; top: 0; z-index: 10;
+			background: rgba(0,0,0,.82);
+			backdrop-filter: saturate(140%) blur(10px);
+			border-bottom: 1px solid var(--hairline);
+		}
+		header.site .wrap {
+			display: flex; align-items: center; justify-content: space-between;
+			gap: 16px; padding: 14px 0; flex-wrap: wrap;
+		}
+		.wordmark { font-weight: 700; letter-spacing: .14em; font-size: 15px; border: 0; }
+		.wordmark .dot { background: var(--spectrum); -webkit-background-clip: text; background-clip: text; color: transparent; }
+		nav.jump { display: flex; gap: 18px; flex-wrap: wrap; }
+		nav.jump a { font-family: var(--mono); font-size: 12px; color: var(--muted); border: 0; letter-spacing: .02em; }
+		nav.jump a:hover { color: var(--ink); }
+		.backlink { font-size: 13px; color: var(--muted); border: 0; }
+		.backlink:hover { color: var(--ink); }
+		.site-actions { display: flex; align-items: center; gap: 18px; }
+		.tourlink { font-family: var(--mono); font-size: 12px; letter-spacing: .03em; color: var(--muted); border: 0; }
+		.tourlink:hover { color: var(--ink); }
 
-      	<div class="player" data-step="1" data-intro="<b>1/6:</b> Welcome to Sonify! Please follow this short tutorial to learn how to turn your pictures into musical sound.">
-          <canvas id="theCanvas" width="460" height="320">Your browser does not support the HTML 5 Canvas.</canvas>
-					<div id="timeline"></div>
-					<div id="theGrid"></div>
-        </div>
+		/* ---- Hero ---- */
+		.hero { padding: 72px 0 40px; border-bottom: 1px solid var(--hairline); }
+		.hero .wrap { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+		.hero h1 {
+			margin: 0 0 18px; font-size: clamp(34px, 6vw, 56px); line-height: 1.04;
+			letter-spacing: -0.02em; font-weight: 700;
+		}
+		.hero h1 em { font-style: normal; background: var(--spectrum); -webkit-background-clip: text; background-clip: text; color: transparent; }
+		.hero p { margin: 0; color: var(--muted); font-size: clamp(16px, 2vw, 19px); max-width: 48ch; }
+		.hero img { width: 150px; height: auto; display: block; filter: drop-shadow(0 12px 32px rgba(0,0,0,.5)); }
+		.goals { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+		.goals span {
+			font-family: var(--mono); font-size: 12.5px; color: var(--ink);
+			padding: 7px 13px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--panel);
+		}
 
-				<!-- TRANSPORT -->
-        <div class="transport" data-step="6" data-intro="<b>6/6:</b> This is the transport section. From here, you can upload an image from your desktop, flip it vertically or horizontally, reset all effects sliders and access this tutorial at any time. You can also view the grid display to see exactly how sound is being mapped. Each block represents averaged RGB data.<br /><br /> Now you have all the tools you need to listen to your pictures. Have fun!">
-          <a id="playBack" class="playBtn" href="#" data-step="2" data-intro="<b>2/6:</b> Just press this button to hear what your picture sounds like... Cool, right?">PLAY</a>
-          <input type="file" id="uploader" class="uploadBtn" value="Upload">
-          <a id="resetBtn" href="#" title="Reset Image">RESET IMAGE</a>
-          <a id="helpBtn" class="" href="#" title="Help">HELP</a>
-					<a href="#" id="flipVertical" title="Flip Vertical">FLIP VERTICAL</a>
-					<a href="#" id="flipHorizontal" title="Flip Horizontal">FLIP HORIZONTAL</a>
-					<a href="#" id="grid" title="Display Grid">DISPLAY GRID</a>
-				</div>
+		/* ---- Sections ---- */
+		section { padding: 56px 0; border-bottom: 1px solid var(--hairline); }
+		.label { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin: 0 0 10px; }
+		.label b { color: transparent; background: var(--spectrum); -webkit-background-clip: text; background-clip: text; font-weight: 600; margin-right: 10px; }
+		h2 { margin: 0 0 20px; font-size: clamp(24px, 3.4vw, 32px); letter-spacing: -0.01em; font-weight: 600; }
+		h3 { margin: 28px 0 10px; font-size: 15px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
+		p { margin: 0 0 16px; }
+		p.lead { color: var(--muted); max-width: 64ch; }
+		.cols { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: start; }
 
-				<div id="line-top"></div>
+		blockquote {
+			margin: 0 0 20px; padding: 2px 0 2px 22px; border-left: 2px solid transparent;
+			border-image: var(--spectrum) 1; font-size: 19px; line-height: 1.5; color: var(--ink);
+		}
+		blockquote cite { display: block; margin-top: 12px; font-size: 14px; color: var(--muted); font-style: normal; }
 
-				<div id="volumeControl">
-					<div class="control">
-          	 <p>VOLUME</p>
-             <span class="volumeTip tooltip"></span>
-             <input type="range" min="0" max="100" id="volume" class="slider" value="50" data-default="50">
-          </div>
-				</div>
-				<!-- END TRANSPORT -->
+		/* color moods */
+		.moods { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 8px; }
+		.mood { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--panel); }
+		.mood i { width: 18px; height: 18px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 14px -2px currentColor; }
+		.mood b { font-size: 14px; font-weight: 600; }
+		.mood span { font-size: 13px; color: var(--muted); }
 
-				<div id="line-bottom"></div>
+		/* parameter mapping table */
+		.map-group { margin-bottom: 26px; }
+		.map {
+			width: 100%; border-collapse: collapse; font-size: 15px;
+			border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden;
+		}
+		.map th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); font-weight: 500; padding: 12px 16px; background: var(--panel-2); }
+		.map td { padding: 13px 16px; border-top: 1px solid var(--hairline); vertical-align: middle; }
+		.map tr td:first-child { font-weight: 600; width: 42%; }
+		.map tr td:last-child { color: var(--muted); }
+		.map .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 10px; vertical-align: middle; box-shadow: 0 0 10px -1px currentColor; }
+		.map tbody tr:hover td { background: var(--panel); }
 
-        <!-- LEFT SLIDER BANK -->
-        <div class="sliderBankLeft" data-step="3" data-intro="<b>3/6:</b> Try adjusting some sliders to see how the sound changes as your picture changes." data-position="right"></div>
+		/* figure / image slots */
+		figure { margin: 0; }
+		figure img { width: 100%; height: auto; display: block; border: 1px solid var(--hairline); border-radius: 12px; background: var(--panel); }
+		figcaption { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+		.specs { list-style: none; margin: 0; padding: 0; }
+		.specs li { padding: 11px 0; border-top: 1px solid var(--hairline); display: flex; gap: 12px; font-size: 15px; }
+		.specs li:first-child { border-top: 0; }
+		.specs li b { font-family: var(--mono); font-size: 12px; color: var(--faint); min-width: 118px; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; padding-top: 2px; }
 
-        <!-- PRESET IMGS -->
-        <div class="filterBank" data-step="5" data-intro="<b>5/6:</b> To give you a better idea of what's happening sonically, test out these different present pictures. How does the placement of color in the picture change the sound?" data-position="top"></div>
+		/* upload slot placeholder (shown until the real image exists) */
+		.slot { position: relative; }
+		.slot .ph {
+			display: flex; align-items: center; justify-content: center; text-align: center;
+			min-height: 220px; border: 1px dashed var(--hairline); border-radius: 12px; background: var(--panel);
+			font-family: var(--mono); font-size: 12.5px; color: var(--faint); padding: 24px; line-height: 1.6;
+		}
+		.slot img { display: none; }
+		.slot.loaded img { display: block; }
+		.slot.loaded .ph { display: none; }
 
-				<!-- RIGHT SLIDER BANK -->
-        <div class="sliderBankRight" data-step="4" data-intro="<b>4/6:</b> Try using these effects, too." data-position="left"></div>
+		.linklist { list-style: none; margin: 0; padding: 0; }
+		.linklist li { padding: 10px 0; border-top: 1px solid var(--hairline); }
+		.linklist li:first-child { border-top: 0; }
 
-        <div class="footer">
-		 	  <p>&copy; 2012&ndash;2026 by <a href="https://www.piablumenthal.com" target="_blank" rel="noopener">Pia Blumenthal</a></p>
-	   	</div>
+		/* live spectrogram */
+		.sonogram { margin-top: 6px; }
+		.sono-stage { display: grid; grid-template-columns: 170px 1fr; gap: 20px; align-items: start; }
+		.sono-stage canvas { width: 100%; height: auto; display: block; border: 1px solid var(--hairline); border-radius: 12px; background: #000; }
+		.sono-stage figcaption { margin-top: 8px; font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: .04em; }
+		.sono-controls { display: flex; align-items: center; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+		#sonoPlay {
+			font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: var(--ink);
+			background: var(--panel-2); border: 1px solid var(--hairline); border-radius: 999px;
+			padding: 9px 22px; cursor: pointer; transition: border-color .15s, background .15s; min-width: 86px;
+		}
+		#sonoPlay:hover { border-color: var(--muted); }
+		#sonoPlay.playing { background: linear-gradient(90deg, rgba(255,90,90,.18), rgba(90,141,255,.18)); border-color: var(--muted); }
+		.sono-patterns { display: flex; gap: 8px; flex-wrap: wrap; }
+		.sono-patterns button {
+			font-family: var(--mono); font-size: 12px; color: var(--muted); background: transparent;
+			border: 1px solid var(--hairline); border-radius: 999px; padding: 7px 13px; cursor: pointer; transition: .15s;
+		}
+		.sono-patterns button:hover { color: var(--ink); }
+		.sono-patterns button.on { color: var(--ink); border-color: var(--muted); background: var(--panel); }
+		.sono-note { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-top: 14px; min-height: 1.2em; }
+		@media (max-width: 720px) {
+			.sono-stage { grid-template-columns: 1fr; }
+			.sono-input { max-width: 180px; }
+		}
+
+		footer { padding: 40px 0 64px; color: var(--muted); font-size: 14px; }
+		footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+		footer a { color: var(--muted); }
+
+		@media (max-width: 720px) {
+			.hero .wrap { grid-template-columns: 1fr; }
+			.hero img { width: 112px; order: -1; }
+			.cols { grid-template-columns: 1fr; gap: 28px; }
+			nav.jump { display: none; }
+		}
+		@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+
+		/* --- B: player embedded as the hero experience --- */
+		.hero--compact { padding: 64px 0 34px; border-bottom: 0; text-align: center; }
+		.hero--compact .wrap { display: block; }
+		.hero--compact h1 { font-size: clamp(36px, 7vw, 64px); line-height: 1.02; margin: 0 auto 18px; max-width: 14ch; }
+		.hero--compact h1 br { display: none; }
+		.hero--compact p { margin: 0 auto; color: var(--muted); font-size: clamp(16px, 2vw, 19px); max-width: 52ch; }
+		.player-band { border-bottom: 1px solid var(--hairline); }
+		.player-viewport { height: 712px; overflow: hidden; display: flex; justify-content: center; background: #000; }
+		.player-frame { width: 1180px; height: 760px; border: 0; display: block; }
+		@media (max-width: 1200px) { .player-viewport { overflow-x: auto; } }
+	</style>
+</head>
+<body>
+
+	<header class="site">
+		<div class="wrap">
+			<a class="wordmark" href="#top">SONIFY<span class="dot">.</span></a>
+			<nav class="jump">
+				<a href="#what">What</a>
+				<a href="#why">Why</a>
+				<a href="#mappings">Mappings</a>
+				<a href="#scheme">Scheme</a>
+			</nav>
 		</div>
-		<!--END CONTENT-->
+	</header>
 
-    </section>
+	<div class="hero hero--compact" id="top">
+		<div class="wrap">
+			<h1>Turn your pictures into <em>sound</em>.</h1>
+			<p>Sonify is a web experiment that reads an image, pixel by pixel, and plays it back as music. Load a picture, press Sonify, and listen.</p>
+		</div>
+	</div>
 
-    <!-- In-app "About" overlay: embeds the help page; the quick tour link
-         inside it calls back into the app to start the introJS walkthrough. -->
-    <div id="helpOverlay" class="help-overlay" hidden>
-      <div class="help-overlay__backdrop" data-close></div>
-      <div class="help-overlay__frame">
-        <button type="button" class="help-overlay__close" data-close aria-label="Close about panel">&times;</button>
-        <iframe id="helpFrame" title="About Sonify" src="about:blank"></iframe>
-      </div>
-    </div>
+	<div class="player-band">
+		<div class="player-viewport">
+			<iframe class="player-frame" src="player.html" title="Sonify player" scrolling="no"></iframe>
+		</div>
+	</div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="js/fft.js"></script>
-    <script src="js/bpm-delay.js"></script>
-    <script src="js/waveshaper.js"></script>
-    <script src="js/wavetable.js"></script>
-    <script src="js/google-waveform.js"></script>
-	  <script src="js/script.js"></script>
-    <script src="js/sonify.js"></script>
-		<script src="js/intro.js"></script>
-	</body>
+	<section id="what">
+		<div class="wrap">
+			<p class="label"><b>01</b> What is Sonify?</p>
+			<h2>An image, read as a melody.</h2>
+			<p class="lead">Sonify uses the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API" target="_blank" rel="noopener">Web Audio API</a> to synthesize sound directly from a picture. The canvas is divided into a grid; the average color of each block is mapped to pitch, gain and timbre, then sequenced into a short, looping phrase.</p>
+			<p class="lead">Adjust the image with the on-screen effects and the music changes with it — because the sound is read from the <em>filtered</em> pixels, not the original. Editing the picture <em>is</em> editing the song.</p>
+		</div>
+	</section>
+
+	<section id="why">
+		<div class="wrap">
+			<p class="label"><b>02</b> Why color &amp; sound?</p>
+			<h2>Both evoke an emotional response.</h2>
+			<blockquote>
+				&ldquo;The sound of colours is so definite that it would be hard to find anyone who would try to express bright yellow in the bass notes, or dark lake in the treble.&rdquo;
+				<cite>&mdash; Wassily Kandinsky, <i>Concerning the Spiritual in Art</i></cite>
+			</blockquote>
+			<h3>General moods associated with colors</h3>
+			<div class="moods">
+				<div class="mood" style="color:#ff5a5a"><i></i><div><b>Red</b> &nbsp;<span>Power, energy, excitement</span></div></div>
+				<div class="mood" style="color:#ff9f45"><i></i><div><b>Orange</b> &nbsp;<span>Confident, creative</span></div></div>
+				<div class="mood" style="color:#ffd84d"><i></i><div><b>Yellow</b> &nbsp;<span>Cheerful, optimistic</span></div></div>
+				<div class="mood" style="color:#39d98a"><i></i><div><b>Green</b> &nbsp;<span>Harmony, balance</span></div></div>
+				<div class="mood" style="color:#5a8dff"><i></i><div><b>Blue</b> &nbsp;<span>Honest, calming, soothing</span></div></div>
+				<div class="mood" style="color:#b57bff"><i></i><div><b>Violet</b> &nbsp;<span>Majestic, inspiring</span></div></div>
+			</div>
+		</div>
+	</section>
+
+	<section id="sonification">
+		<div class="wrap">
+			<p class="label"><b>03</b> Sonification</p>
+			<h2>Data you can hear.</h2>
+			<blockquote>
+				&ldquo;The transformation of data relations into perceived relations in an acoustic signal, for the purposes of facilitating communication or interpretation.&rdquo;
+				<cite>&mdash; Kramer et al., <i>Sonification Report: Status of the Field and Research Agenda</i> (1999)</cite>
+			</blockquote>
+			<p class="lead">Sonify&rsquo;s guiding principles are an amalgam of perceptual observations drawn from several fields. Research has yet to specify a complete paradigm for sonification — so this is as much an experiment as a tool.</p>
+		</div>
+	</section>
+
+	<section id="mappings">
+		<div class="wrap">
+			<p class="label"><b>04</b> Parameter mappings</p>
+			<h2>Every control drives the synth.</h2>
+			<p class="lead" style="margin-bottom:28px;">Each slider is wired to a specific musical parameter. Color and tone shape pitch and loudness; the red, green and blue channels each voice a different waveform; the effects become audio effects.</p>
+
+			<div class="map-group">
+				<table class="map">
+					<thead><tr><th>Color &amp; tone</th><th>Sound parameter</th></tr></thead>
+					<tbody>
+						<tr><td>Hue</td><td>Pitch detune amount</td></tr>
+						<tr><td>Saturation</td><td>Voice separation</td></tr>
+						<tr><td>Lightness</td><td>Note gain</td></tr>
+						<tr><td>Contrast</td><td>Note gain</td></tr>
+						<tr><td>Brightness</td><td>Note gain</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="map-group">
+				<table class="map">
+					<thead><tr><th>Channel</th><th>Waveform</th></tr></thead>
+					<tbody>
+						<tr><td><span class="swatch" style="color:#ff5a5a;background:#ff5a5a"></span>Red</td><td>Square wave</td></tr>
+						<tr><td><span class="swatch" style="color:#39d98a;background:#39d98a"></span>Green</td><td>Sine wave</td></tr>
+						<tr><td><span class="swatch" style="color:#5a8dff;background:#5a8dff"></span>Blue</td><td>Triangle wave</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="map-group">
+				<table class="map">
+					<thead><tr><th>Effect</th><th>Audio parameter</th></tr></thead>
+					<tbody>
+						<tr><td>Blur</td><td>Reverberation amount</td></tr>
+						<tr><td>Sharpen</td><td>Amplitude attack / decay</td></tr>
+						<tr><td>Glow</td><td>Note gain</td></tr>
+						<tr><td>Noise</td><td>Delay amount</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</section>
+
+	<section id="scheme">
+		<div class="wrap">
+			<p class="label"><b>05</b> Mapping scheme</p>
+			<h2>How pixels become notes.</h2>
+			<div class="cols">
+				<figure>
+					<img src="images/image_grid.png" width="510" height="364" alt="The image is read as a grid of pitch (vertical) over time (horizontal)">
+					<figcaption>Vertical &rarr; pitch, horizontal &rarr; time.</figcaption>
+				</figure>
+				<ul class="specs">
+					<li><b>Reading</b> Inverse spectrogram mapping</li>
+					<li><b>Polarity</b> Positive</li>
+					<li><b>Range</b> Scaled between C3 &ndash; C6</li>
+					<li><b>Scale</b> Pentatonic</li>
+					<li><b>Sequence</b> 16 eighth-notes</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<footer>
+		<div class="wrap">
+			<span>&copy; 2012&ndash;2026 <a href="https://www.piablumenthal.com" target="_blank" rel="noopener">Pia Blumenthal</a></span>
+			<a href="#top">Back to top&nbsp;&uarr;</a>
+		</div>
+	</footer>
+
+	<script>
+	// The embedded player's HELP button asks the host to reveal the explainer.
+	window.addEventListener('message', function(e){
+		if(e.data && e.data.type === 'sonify-help'){
+			var t = document.getElementById('what');
+			if(t) t.scrollIntoView({ behavior: 'smooth' });
+		}
+	});
+	</script>
+</body>
 </html>
