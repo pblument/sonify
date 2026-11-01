@@ -33,7 +33,7 @@ function WaveTable(name, context) {
     this.name = name;
     this.context = context;
     this.sampleRate = context.sampleRate;
-    this.url = "js/wavetables/" + this.name;
+    this.url = "js/wavetables/" + this.name + ".txt";
     this.waveTableSize = 4096; // hard-coded for now
     this.buffer = 0;
     this.numberOfResampleRanges = kDefaultNumberOfResampleRanges;
