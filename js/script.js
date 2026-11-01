@@ -418,5 +418,33 @@ $(window).load(function() {
 
 	imageObj.src = 'images/'+imgSrcArray[7];
 	drawImage(imageObj);
+
+	pumpSpectrum();
 });
+
+// When embedded in a host page, tap the master output and stream the
+// frequency data to the parent so it can draw a spectrogram from the real
+// player output. Harmless when running standalone (nothing listens).
+var _specCtx = null, _specAnalyser = null, _specData = null;
+function pumpSpectrum() {
+	try {
+		if(typeof staticAudioRouting !== 'undefined' && staticAudioRouting &&
+		   staticAudioRouting.compressor && typeof context !== 'undefined' && context) {
+			if(_specCtx !== context) {
+				_specCtx = context;
+				_specAnalyser = context.createAnalyser();
+				_specAnalyser.fftSize = 1024;
+				_specAnalyser.smoothingTimeConstant = 0.35;
+				_specData = new Uint8Array(_specAnalyser.frequencyBinCount);
+				staticAudioRouting.compressor.connect(_specAnalyser);
+			}
+			if(window.parent && window.parent !== window &&
+			   typeof playStatus !== 'undefined' && playStatus) {
+				_specAnalyser.getByteFrequencyData(_specData);
+				window.parent.postMessage({ type: 'sonify-spectrum', data: Array.prototype.slice.call(_specData) }, '*');
+			}
+		}
+	} catch(e) {}
+	requestAnimationFrame(pumpSpectrum);
+}
 		
