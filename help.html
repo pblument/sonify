@@ -143,6 +143,32 @@
 		.linklist li { padding: 10px 0; border-top: 1px solid var(--hairline); }
 		.linklist li:first-child { border-top: 0; }
 
+		/* live spectrogram */
+		.sonogram { margin-top: 6px; }
+		.sono-stage { display: grid; grid-template-columns: 170px 1fr; gap: 20px; align-items: start; }
+		.sono-stage canvas { width: 100%; height: auto; display: block; border: 1px solid var(--hairline); border-radius: 12px; background: #000; }
+		.sono-stage figcaption { margin-top: 8px; font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: .04em; }
+		.sono-controls { display: flex; align-items: center; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+		#sonoPlay {
+			font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: var(--ink);
+			background: var(--panel-2); border: 1px solid var(--hairline); border-radius: 999px;
+			padding: 9px 22px; cursor: pointer; transition: border-color .15s, background .15s; min-width: 86px;
+		}
+		#sonoPlay:hover { border-color: var(--muted); }
+		#sonoPlay.playing { background: linear-gradient(90deg, rgba(255,90,90,.18), rgba(90,141,255,.18)); border-color: var(--muted); }
+		.sono-patterns { display: flex; gap: 8px; flex-wrap: wrap; }
+		.sono-patterns button {
+			font-family: var(--mono); font-size: 12px; color: var(--muted); background: transparent;
+			border: 1px solid var(--hairline); border-radius: 999px; padding: 7px 13px; cursor: pointer; transition: .15s;
+		}
+		.sono-patterns button:hover { color: var(--ink); }
+		.sono-patterns button.on { color: var(--ink); border-color: var(--muted); background: var(--panel); }
+		.sono-note { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-top: 14px; min-height: 1.2em; }
+		@media (max-width: 720px) {
+			.sono-stage { grid-template-columns: 1fr; }
+			.sono-input { max-width: 180px; }
+		}
+
 		footer { padding: 40px 0 64px; color: var(--muted); font-size: 14px; }
 		footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 		footer a { color: var(--muted); }
@@ -181,8 +207,6 @@
 				<div class="goals">
 					<span>Musical sonification</span>
 					<span>Auditory&ndash;visual associations</span>
-					<span>Instantly accessible</span>
-					<span>Write once, run anywhere</span>
 				</div>
 			</div>
 			<img src="images/sonify_lg.png" width="248" height="233" alt="Sonify logo">
@@ -224,6 +248,7 @@
 			<h2>Data you can hear.</h2>
 			<blockquote>
 				&ldquo;The transformation of data relations into perceived relations in an acoustic signal, for the purposes of facilitating communication or interpretation.&rdquo;
+				<cite>&mdash; Kramer et al., <i>Sonification Report: Status of the Field and Research Agenda</i> (1999)</cite>
 			</blockquote>
 			<p class="lead">Sonify&rsquo;s guiding principles are an amalgam of perceptual observations drawn from several fields. Research has yet to specify a complete paradigm for sonification — so this is as much an experiment as a tool.</p>
 		</div>
@@ -314,12 +339,29 @@
 	<section id="evaluation">
 		<div class="wrap">
 			<p class="label"><b>07</b> Evaluation</p>
-			<h2>Reading it back in spectrograms.</h2>
-			<p class="lead">A spectrogram of the output confirms the mapping — each column of the image lands where it should in pitch and time.</p>
-			<figure class="slot" data-src="images/spectrograms.png">
-				<img src="images/spectrograms.png" alt="Spectrogram analysis of Sonify output">
-				<div class="ph">spectrograms.png &mdash; drop the image into&nbsp;/images&nbsp;to display it here</div>
-			</figure>
+			<h2>Hear it, see it, read it back.</h2>
+			<p class="lead">Press play: a test image runs through the same mapping, and its spectrogram builds live from the sound. Each colored block lands where it should in pitch and time &mdash; switch patterns to watch the picture rewrite the music.</p>
+			<div class="sonogram" id="sonogram">
+				<div class="sono-stage">
+					<figure class="sono-input">
+						<canvas id="sonoImage" width="200" height="140"></canvas>
+						<figcaption>Test image</figcaption>
+					</figure>
+					<figure class="sono-output">
+						<canvas id="sonoSpec" width="1000" height="320"></canvas>
+						<figcaption>Live spectrogram &mdash; frequency (y) over time (x)</figcaption>
+					</figure>
+				</div>
+				<div class="sono-controls">
+					<button id="sonoPlay" type="button">Play</button>
+					<div class="sono-patterns" id="sonoPatterns">
+						<button data-pat="row" class="on">RGB row</button>
+						<button data-pat="diag">RGB diagonal</button>
+						<button data-pat="cmy">CMY diagonal</button>
+					</div>
+				</div>
+				<p class="sono-note" id="sonoNote"></p>
+			</div>
 		</div>
 	</section>
 
@@ -327,18 +369,11 @@
 		<div class="wrap">
 			<p class="label"><b>08</b> Future work</p>
 			<h2>Where Sonify goes next.</h2>
-			<div class="cols">
-				<ul class="specs">
-					<li><b>Mobile</b> Mobile-friendly versions</li>
-					<li><b>Method</b> Scanning vs. probing sonifications</li>
-					<li><b>Mapping</b> More flexible, user-defined mappings</li>
-					<li><b>Sharing</b> A database to store and share sounds</li>
-				</ul>
-				<figure class="slot" data-src="images/mobile_versions_with_ribbon.png">
-					<img src="images/mobile_versions_with_ribbon.png" alt="Mobile versions of Sonify">
-					<div class="ph">mobile_versions_with_ribbon.png &mdash; drop the image into&nbsp;/images&nbsp;to display it here</div>
-				</figure>
-			</div>
+			<ul class="specs">
+				<li><b>Method</b> Scanning vs. probing sonifications</li>
+				<li><b>Mapping</b> More flexible, user-defined mappings</li>
+				<li><b>Sharing</b> A database to store and share sounds</li>
+			</ul>
 		</div>
 	</section>
 
@@ -350,15 +385,144 @@
 	</footer>
 
 	<script>
-		// Reveal image slots only once their image actually loads; otherwise the
-		// labeled placeholder stays. Lets the two to-be-uploaded images slot in
-		// with no further edits.
-		document.querySelectorAll('.slot').forEach(function(slot){
-			var img = slot.querySelector('img');
-			if(!img) return;
-			if(img.complete && img.naturalWidth > 0){ slot.classList.add('loaded'); return; }
-			img.addEventListener('load', function(){ if(img.naturalWidth > 0) slot.classList.add('loaded'); });
+	// ---- Live spectrogram: a compact, self-contained demo of Sonify's mapping.
+	// A test image is read into a 16-column grid; each column's average R/G/B
+	// drives a short note (red=square, green=sine, blue=triangle) whose pitch
+	// comes from where the color sits vertically (top = high). The mix feeds an
+	// AnalyserNode that paints the scrolling spectrogram in real time.
+	(function(){
+		var imgC = document.getElementById('sonoImage');
+		var specC = document.getElementById('sonoSpec');
+		var playBtn = document.getElementById('sonoPlay');
+		var patWrap = document.getElementById('sonoPatterns');
+		var note = document.getElementById('sonoNote');
+		if(!imgC || !specC || !playBtn) return;
+
+		var AC = window.AudioContext || window.webkitAudioContext;
+		if(!AC){ note.textContent = 'Live audio needs the Web Audio API — try Chrome, Edge, Firefox or Safari.'; playBtn.disabled = true; return; }
+
+		var ictx = imgC.getContext('2d');
+		var sctx = specC.getContext('2d');
+		var SW = specC.width, SH = specC.height;
+		var COLS = 16, ROWS = 12, stepDur = 0.16;
+
+		// major pentatonic, C3 up three octaves
+		var scale = (function(){ var semis = [0,2,4,7,9], out = []; for(var o=0;o<3;o++) for(var k=0;k<semis.length;k++) out.push(130.81 * Math.pow(2,(o*12+semis[k])/12)); out.push(130.81*8); return out; })();
+
+		// ---- test patterns ----
+		function drawPattern(name){
+			var w = imgC.width, h = imgC.height, s = Math.round(h*0.34);
+			ictx.fillStyle = '#000'; ictx.fillRect(0,0,w,h);
+			function sq(cx,cy,c){ ictx.fillStyle = c; ictx.fillRect(Math.round(cx-s/2), Math.round(cy-s/2), s, s); }
+			if(name === 'row'){ sq(w*0.28,h*0.5,'#ff2d2d'); sq(w*0.5,h*0.5,'#20e020'); sq(w*0.72,h*0.5,'#2d6bff'); }
+			else if(name === 'diag'){ sq(w*0.26,h*0.28,'#ff2d2d'); sq(w*0.5,h*0.5,'#20e020'); sq(w*0.74,h*0.72,'#2d6bff'); }
+			else { sq(w*0.26,h*0.28,'#19d6d6'); sq(w*0.5,h*0.5,'#e81ee8'); sq(w*0.74,h*0.72,'#ece11a'); }
+			computeGrid();
+		}
+
+		// ---- read image -> sequence of per-column voices ----
+		var seq = [];
+		function channelNote(block){
+			var wsum = 0, sum = 0;
+			for(var r=0;r<ROWS;r++){ sum += block[r]; wsum += (ROWS-1-r)*block[r]; }
+			if(sum < ROWS*10) return null; // too dark -> silent
+			var idx = Math.round((wsum/sum)/(ROWS-1) * (scale.length-1));
+			idx = Math.max(0, Math.min(scale.length-1, idx));
+			return { freq: scale[idx], gain: Math.min(1, sum/(ROWS*255)) };
+		}
+		function computeGrid(){
+			var w = imgC.width, h = imgC.height, data = ictx.getImageData(0,0,w,h).data;
+			seq = [];
+			for(var c=0;c<COLS;c++){
+				var x0 = Math.floor(c*w/COLS), x1 = Math.floor((c+1)*w/COLS);
+				var R = [], G = [], B = [];
+				for(var r=0;r<ROWS;r++){
+					var y0 = Math.floor(r*h/ROWS), y1 = Math.floor((r+1)*h/ROWS), ar=0, ag=0, ab=0, n=0;
+					for(var y=y0;y<y1;y++) for(var x=x0;x<x1;x++){ var i=(y*w+x)*4; ar+=data[i]; ag+=data[i+1]; ab+=data[i+2]; n++; }
+					R[r]=ar/n; G[r]=ag/n; B[r]=ab/n;
+				}
+				var v = [], rn = channelNote(R), gn = channelNote(G), bn = channelNote(B);
+				if(rn){ rn.type='square';   v.push(rn); }
+				if(gn){ gn.type='sine';     v.push(gn); }
+				if(bn){ bn.type='triangle'; v.push(bn); }
+				seq.push(v);
+			}
+		}
+
+		// ---- audio + render ----
+		var ctx=null, master=null, analyser=null, freqData=null;
+		var playing=false, raf=null, schedTimer=null, nextTime=0, stepIndex=0;
+
+		function initAudio(){
+			ctx = new AC();
+			master = ctx.createGain(); master.gain.value = 0.55;
+			analyser = ctx.createAnalyser(); analyser.fftSize = 1024; analyser.smoothingTimeConstant = 0.35;
+			freqData = new Uint8Array(analyser.frequencyBinCount);
+			master.connect(analyser); analyser.connect(ctx.destination);
+		}
+		function playStep(voices, t){
+			for(var k=0;k<voices.length;k++){
+				var v = voices[k];
+				var o = ctx.createOscillator(); o.type = v.type; o.frequency.value = v.freq;
+				var g = ctx.createGain(), peak = 0.2 * v.gain;
+				g.gain.setValueAtTime(0.0001, t);
+				g.gain.linearRampToValueAtTime(peak, t + 0.012);
+				g.gain.exponentialRampToValueAtTime(0.0008, t + stepDur*0.9);
+				o.connect(g); g.connect(master); o.start(t); o.stop(t + stepDur);
+			}
+		}
+		function scheduler(){
+			while(nextTime < ctx.currentTime + 0.12){
+				playStep(seq[stepIndex % COLS] || [], nextTime);
+				nextTime += stepDur; stepIndex++;
+			}
+			schedTimer = setTimeout(scheduler, 40);
+		}
+		function colormap(m){
+			var t = m/255, r, g, b, u;
+			if(t < 0.25){ u=t/0.25; r=0; g=0; b=Math.round(55+u*165); }
+			else if(t < 0.5){ u=(t-0.25)/0.25; r=0; g=Math.round(u*205); b=Math.round(220-u*185); }
+			else if(t < 0.75){ u=(t-0.5)/0.25; r=Math.round(u*235); g=Math.round(205+u*50); b=0; }
+			else { u=(t-0.75)/0.25; r=255; g=Math.round(255-u*220); b=0; }
+			return 'rgb('+r+','+g+','+b+')';
+		}
+		function drawSpec(){
+			analyser.getByteFrequencyData(freqData);
+			sctx.drawImage(specC, -3, 0);
+			var bins = Math.floor(analyser.frequencyBinCount * 0.55);
+			for(var y=0;y<SH;y++){
+				var bin = Math.floor((1 - y/SH) * bins);
+				sctx.fillStyle = colormap(freqData[bin]);
+				sctx.fillRect(SW-3, y, 3, 1);
+			}
+			raf = requestAnimationFrame(drawSpec);
+		}
+		function start(){
+			if(!ctx) initAudio();
+			if(ctx.state === 'suspended') ctx.resume();
+			playing = true; playBtn.classList.add('playing'); playBtn.textContent = 'Stop';
+			note.textContent = 'Listening… the spectrogram is drawn from the sound the image makes.';
+			sctx.fillStyle = '#000'; sctx.fillRect(0,0,SW,SH);
+			stepIndex = 0; nextTime = ctx.currentTime + 0.1;
+			scheduler(); drawSpec();
+		}
+		function stop(){
+			playing = false; playBtn.classList.remove('playing'); playBtn.textContent = 'Play';
+			note.textContent = '';
+			if(schedTimer){ clearTimeout(schedTimer); schedTimer = null; }
+			if(raf){ cancelAnimationFrame(raf); raf = null; }
+		}
+
+		playBtn.addEventListener('click', function(){ playing ? stop() : start(); });
+		patWrap.addEventListener('click', function(e){
+			var btn = e.target.closest ? e.target.closest('button[data-pat]') : null;
+			if(!btn) return;
+			[].forEach.call(patWrap.querySelectorAll('button'), function(b){ b.classList.toggle('on', b === btn); });
+			drawPattern(btn.getAttribute('data-pat'));
 		});
+
+		drawPattern('row');
+	})();
 	</script>
 </body>
 </html>
