@@ -66,6 +66,9 @@
 		nav.jump a:hover { color: var(--ink); }
 		.backlink { font-size: 13px; color: var(--muted); border: 0; }
 		.backlink:hover { color: var(--ink); }
+		.site-actions { display: flex; align-items: center; gap: 18px; }
+		.tourlink { font-family: var(--mono); font-size: 12px; letter-spacing: .03em; color: var(--muted); border: 0; }
+		.tourlink:hover { color: var(--ink); }
 
 		/* ---- Hero ---- */
 		.hero { padding: 72px 0 40px; border-bottom: 1px solid var(--hairline); }
@@ -195,7 +198,10 @@
 				<a href="#tech">Tech</a>
 				<a href="#next">Next</a>
 			</nav>
-			<a class="backlink" href="index.html">Open the app&nbsp;&rarr;</a>
+			<div class="site-actions">
+				<a class="tourlink" id="tourLink" href="index.html#tour">Take the tour</a>
+				<a class="backlink applink" href="index.html">Open the app&nbsp;&rarr;</a>
+			</div>
 		</div>
 	</header>
 
@@ -380,7 +386,7 @@
 	<footer>
 		<div class="wrap">
 			<span>&copy; 2012&ndash;2026 <a href="https://www.piablumenthal.com" target="_blank" rel="noopener">Pia Blumenthal</a></span>
-			<a href="index.html">Open the app&nbsp;&rarr;</a>
+			<a class="applink" href="index.html">Open the app&nbsp;&rarr;</a>
 		</div>
 	</footer>
 
@@ -522,6 +528,28 @@
 		});
 
 		drawPattern('row');
+	})();
+	</script>
+
+	<script>
+	// When this page is embedded in the app's About overlay, rewire its links
+	// to talk to the parent app instead of navigating the iframe.
+	(function(){
+		var embedded = false;
+		try { embedded = window.self !== window.top; } catch(e) { embedded = true; }
+		if(!embedded) return;
+		var tour = document.getElementById('tourLink');
+		if(tour) tour.addEventListener('click', function(e){
+			e.preventDefault();
+			try { if(window.parent.sonifyStartTour) window.parent.sonifyStartTour(); } catch(err){}
+		});
+		[].forEach.call(document.querySelectorAll('.applink'), function(a){
+			a.textContent = 'Close';
+			a.addEventListener('click', function(e){
+				e.preventDefault();
+				try { if(window.parent.sonifyCloseHelp) window.parent.sonifyCloseHelp(); } catch(err){}
+			});
+		});
 	})();
 	</script>
 </body>

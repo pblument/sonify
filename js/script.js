@@ -174,6 +174,37 @@ $(document).ready(function() {
 		$('#theGrid').toggle('fast');
 	});
 
+	// ---- About overlay (embeds help.html) + tour hand-off ----
+	var $overlay = $('#helpOverlay');
+	var helpFrame = document.getElementById('helpFrame');
+
+	window.sonifyOpenHelp = function() {
+		if(helpFrame && helpFrame.getAttribute('src') === 'about:blank') {
+			helpFrame.setAttribute('src', 'help.html');
+		}
+		$overlay.prop('hidden', false);
+	};
+	window.sonifyCloseHelp = function() {
+		$overlay.prop('hidden', true);
+	};
+	// Called from inside the embedded help page's "Take the quick tour" link.
+	window.sonifyStartTour = function() {
+		window.sonifyCloseHelp();
+		if(typeof introJs === 'function') introJs().start();
+	};
+
+	$('#helpBtn').click(function(e) { e.preventDefault(); window.sonifyOpenHelp(); });
+	$overlay.find('[data-close]').click(function() { window.sonifyCloseHelp(); });
+	$(document).on('keydown', function(e) {
+		if((e.key === 'Escape' || e.keyCode === 27) && !$overlay.prop('hidden')) window.sonifyCloseHelp();
+	});
+
+	// Deep link: /index.html#tour starts the walkthrough (used by the help
+	// page's tour link when it is opened standalone rather than embedded).
+	if(window.location.hash === '#tour' && typeof introJs === 'function') {
+		setTimeout(function() { introJs().start(); }, 600);
+	}
+
 });
 
 function initSynth(filterArray) {
