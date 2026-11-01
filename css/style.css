@@ -338,6 +338,10 @@ a#flipVertical.locked {
 	cursor: default;
 }
 
+a#flipVertical.flipOn {
+	background-position: -2px -122px;
+}
+
 
 a#flipHorizontal {
 	background: transparent url('../images/btns_sprite4.png') -84px 0 no-repeat;
@@ -354,6 +358,10 @@ a#flipHorizontal:active {
 a#flipHorizontal.locked {
 	background-position: -84px -183px;
 	cursor: default;
+}
+
+a#flipHorizontal.flipOn {
+	background-position: -84px -122px;
 }
 
 a#helpBtn {

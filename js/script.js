@@ -159,12 +159,14 @@ $(document).ready(function() {
 	});
 	
 	$('#flipVertical').click(function(e) {
-		flipvTrue = true;
+		flipvTrue = !flipvTrue;
+		$(this).toggleClass('flipOn', flipvTrue);
 		redrawImage();
 	});
 
 	$('#flipHorizontal').click(function(e) {
-		fliphTrue = true;
+		fliphTrue = !fliphTrue;
+		$(this).toggleClass('flipOn', fliphTrue);
 		redrawImage();
 	});
 
@@ -224,8 +226,13 @@ function drawPreset(imgPreset, filterArray) {
 
 function resetImage(filterArray) {
 	// console.log('resetImage', filterArray);
+	flipvTrue = false;
+	fliphTrue = false;
+	$('#flipVertical, #flipHorizontal').removeClass('flipOn');
 	imageObj = imageStore;
-	document.getElementById('theCanvas').getContext('2d').drawImage(imageObj,0,0,460,320);
+	var ctx = document.getElementById('theCanvas').getContext('2d');
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.drawImage(imageObj,0,0,460,320);
 
 	for(var i = 0; i < filterArray.length; i++) {
 		filterArray[i].value = filterArray[i].default;
@@ -318,6 +325,15 @@ function redrawImage(filtered) {
 
 	var canvas = document.getElementById('theCanvas');
 	var ctx = canvas.getContext('2d');
+
+	// Clear in untransformed space, then draw the clean source through the
+	// filter with any horizontal/vertical flip applied via a canvas transform.
+	// bandify() reads these pixels, so flipping also flips the resulting melody.
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.filter = 'none';
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	ctx.save();
 	ctx.filter =
 		'hue-rotate(' + hue + 'deg) ' +
 		'saturate(' + saturation + ') ' +
@@ -325,9 +341,10 @@ function redrawImage(filtered) {
 		'contrast(' + contrast + ') ' +
 		'blur(' + blur + 'px) ' +
 		'url(#imageFX)';
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.translate(fliphTrue ? 460 : 0, flipvTrue ? 320 : 0);
+	ctx.scale(fliphTrue ? -1 : 1, flipvTrue ? -1 : 1);
 	ctx.drawImage(imageStore, 0, 0, 460, 320);
-	ctx.filter = 'none';
+	ctx.restore();
 
 	bandify(numberOfRows,numberOfCols);
 }
