@@ -193,7 +193,15 @@ $(document).ready(function() {
 		if(typeof introJs === 'function') introJs().start();
 	};
 
-	$('#helpBtn').click(function(e) { e.preventDefault(); window.sonifyOpenHelp(); });
+	$('#helpBtn').click(function(e) {
+		e.preventDefault();
+		// Embedded in the host page: ask it to reveal the explainer instead of
+		// opening the overlay (which would be clipped by the cropped iframe).
+		if(window.parent && window.parent !== window) {
+			try { window.parent.postMessage({ type: 'sonify-help' }, '*'); return; } catch(err) {}
+		}
+		window.sonifyOpenHelp();
+	});
 	$overlay.find('[data-close]').click(function() { window.sonifyCloseHelp(); });
 	$(document).on('keydown', function(e) {
 		if((e.key === 'Escape' || e.keyCode === 27) && !$overlay.prop('hidden')) window.sonifyCloseHelp();
