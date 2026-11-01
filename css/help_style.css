@@ -1,0 +1,216 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+
+::selection {
+  background-color:#9F6;
+}
+::-moz-selection {
+  background-color:#9F6;
+}
+
+html {
+	padding: 0;
+	margin: 0;
+	min-width: 100%;
+	min-height: 100%;
+}
+
+body {
+	background-color: #232323; 
+	margin: 0;
+	padding: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	font-family: 'proxima_novabold','Helvetica Neue','Arial','Helvetica', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  line-height: 1.3em;
+}
+
+section {
+	width: 100%;
+	max-width: 70%;
+	position: relative;
+	margin: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	display: block;
+	padding: 20px 0 100px 40px;
+	height: 1500px;
+}
+
+h1 {
+	color: #21a97e;
+}
+
+h2 {
+  line-height: 1em;
+  padding: 1em 0 0.5em 0;
+}
+
+p {
+  font-family: 'proxima_novalight','Helvetica Neue','Arial','Helvetica', sans-serif;
+  font-size: 18px;
+  line-height: 1.6em;
+}
+
+a, a:link,
+a:active,
+a:visited {
+	-webkit-transition: color 0.25s ease-out;
+	-moz-transition: color 0.25s ease-out;
+	-o-transition: color 0.25s ease-out;
+	transition: color 0.25s ease-out;
+	color: #999999;
+	outline: none;
+	text-decoration:none;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	font-size: 12px;
+}
+a:hover { 
+	color:#666666;
+}
+
+img {
+	display: block;
+	border: none;
+}
+
+nav#primary {
+  z-index: 5;
+  position: fixed;
+  top: 50%;
+  right: 16px;
+  margin: -170px 0 0 0;
+}
+nav#primary li {
+	position: relative;
+	height: 34px;
+}
+nav#primary a {
+	display: block;
+	width: 37px;
+	height: 44px;
+	text-indent: -9999px;
+	background: transparent url('../images/pagination3.png') 0px 0 no-repeat;
+	margin: 0 0 5px 0;
+}
+nav#primary a:hover, nav#primary a.active {
+	background: transparent url('../images/pagination3.png') 0px -45px no-repeat;
+}
+
+nav#primary h1 {
+	position: absolute;
+/*	text-transform: uppercase;*/
+	right: 32px;
+	top: 9px;
+	display: none;
+	padding: 4px 20px 4px 7px;
+	color: #FFFFFF;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	font-size: 14px;
+	font-weight: normal;
+/*	text-shadow: 0px -1px 0px #000000;*/
+	white-space: nowrap;
+	background: transparent url('../images/toolTip2.png') 100% 50% no-repeat;
+}
+
+.sonify {
+	background: transparent url('../images/sonify_logo.png') 0 0 no-repeat;
+	width: 71px;
+	height: 67px;
+	position: relative;
+	margin: 0px 20px 0 20px;
+	float: left;
+	opacity: 1;
+}
+
+.description {
+	float: left;
+	position: relative;
+}
+
+.description h2 {
+	/*text-transform: uppercase;*/
+	position: relative;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	font-size: 30px;
+	color: #FFFFFF;
+}
+
+.description p {
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	/*font-size: 24px;
+	font-weight: normal;*/
+	color: #FFFFFF;
+	margin: 0;
+	padding: 0 0 1em 0;
+	position: relative;
+}
+
+.description p strong {
+	font-style: italic;
+	font-weight: normal;
+}
+
+.description p a, .description p a:link,
+.description p a:active,
+.description p a:visited {
+	-webkit-transition: color 0.25s ease-out;
+	-moz-transition: color 0.25s ease-out;
+	-o-transition: color 0.25s ease-out;
+	transition: color 0.25s ease-out;
+	color: #999999
+	text-decoration:none;
+	/*font-family: Arial, Helvetica, sans-serif;*/
+	font-size: 1em;
+}
+.description p a:hover { 
+	color: #666666;
+}
+
+.description p img {
+	padding: 10px 0 1em 0;
+}
+
+#logo {
+	position: relative;
+	padding: 0px 0 30px 0;
+}
+
+#startBtn {
+	position: relative;
+	padding: 30px 0 30px 0;
+}
+
+#btns {
+	position: relative;
+	float: left;
+	padding: 0 20px 0 0;
+}
