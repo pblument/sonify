@@ -131,7 +131,7 @@
 		.spec-cta {
 			position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
 			font-family: var(--mono); font-size: 13px; letter-spacing: .04em; color: #fff;
-			background: linear-gradient(90deg, #ff5a5a, #5a8dff); border: 0; border-radius: 999px;
+			background: var(--spectrum); border: 0; border-radius: 999px;
 			padding: 13px 26px; cursor: pointer; box-shadow: 0 10px 34px rgba(0,0,0,.55);
 			transition: transform .15s ease, filter .15s ease;
 		}
@@ -323,7 +323,7 @@
 				<figure>
 					<div class="spec-stage" id="specStage">
 						<canvas id="liveSpec" width="1000" height="360"></canvas>
-						<button type="button" class="spec-cta" id="specPlay">Play the Sonify&nbsp;&#9654;</button>
+						<button type="button" class="spec-cta" id="specPlay">Sonify</button>
 					</div>
 					<figcaption>Live spectrogram of the player output.</figcaption>
 				</figure>
