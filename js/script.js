@@ -267,14 +267,27 @@ function filterValue(name) {
 	return 0;
 }
 
-// Update the SVG feColorMatrix used for per-channel RGB gain. Each channel
-// slider is 0-100 with 50 = unchanged, so gain = value/50 (0..2).
-function setChannelMix(r, g, b) {
-	var m = document.getElementById('channelMixMatrix');
-	if(m) {
-		m.setAttribute('values',
+// Drive the SVG #imageFX filter from the slider values for the effects that
+// CSS filter functions can't express. RGB channel sliders are 0-100 with
+// 50 = unchanged (gain = value/50); sharpen/glow/noise are 0-100 additive
+// with 0 = off.
+function setImageFX(r, g, b, sharpen, glow, noise) {
+	var ch = document.getElementById('fxChannel');
+	if(ch) {
+		ch.setAttribute('values',
 			r + ' 0 0 0 0  0 ' + g + ' 0 0 0  0 0 ' + b + ' 0 0  0 0 0 1 0');
 	}
+	var sh = document.getElementById('fxSharpen');
+	if(sh) {
+		// amount 0 -> identity kernel; higher -> standard sharpen kernel
+		var a = sharpen / 100;
+		sh.setAttribute('kernelMatrix',
+			'0 ' + (-a) + ' 0  ' + (-a) + ' ' + (1 + 4*a) + ' ' + (-a) + '  0 ' + (-a) + ' 0');
+	}
+	var gl = document.getElementById('fxGlow');
+	if(gl) gl.setAttribute('slope', glow / 100);        // 0..1 bloom strength
+	var ns = document.getElementById('fxNoise');
+	if(ns) ns.setAttribute('slope', noise / 160);       // 0..~0.6 speckle opacity
 }
 
 function redrawImage(filtered) {
@@ -293,7 +306,9 @@ function redrawImage(filtered) {
 	// canvas filter string and bake it into the pixels by drawing the clean
 	// source through it — bandify() then reads those filtered pixels, so the
 	// sound still reacts to every slider.
-	setChannelMix(filterValue('red')/50, filterValue('green')/50, filterValue('blue')/50);
+	setImageFX(
+		filterValue('red')/50, filterValue('green')/50, filterValue('blue')/50,
+		filterValue('sharpen'), filterValue('glow'), filterValue('noise'));
 
 	var hue        = (filterValue('hue') - 50) * 3.6;          // +/-180deg
 	var saturation = filterValue('saturation') / 50;           // 0..2
@@ -309,7 +324,7 @@ function redrawImage(filtered) {
 		'brightness(' + brightness + ') ' +
 		'contrast(' + contrast + ') ' +
 		'blur(' + blur + 'px) ' +
-		'url(#channelMix)';
+		'url(#imageFX)';
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.drawImage(imageStore, 0, 0, 460, 320);
 	ctx.filter = 'none';
