@@ -115,16 +115,6 @@
 
     </section>
 
-    <!-- In-app "About" overlay: embeds the help page; the quick tour link
-         inside it calls back into the app to start the introJS walkthrough. -->
-    <div id="helpOverlay" class="help-overlay" hidden>
-      <div class="help-overlay__backdrop" data-close></div>
-      <div class="help-overlay__frame">
-        <button type="button" class="help-overlay__close" data-close aria-label="Close about panel">&times;</button>
-        <iframe id="helpFrame" title="About Sonify" src="about:blank"></iframe>
-      </div>
-    </div>
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="js/fft.js"></script>
     <script src="js/bpm-delay.js"></script>

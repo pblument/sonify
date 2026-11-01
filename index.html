@@ -46,7 +46,7 @@
 		a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--faint); transition: border-color .15s, color .15s; }
 		a:hover { border-color: var(--ink); }
 
-		.wrap { width: min(100% - 40px, 860px); margin-inline: auto; }
+		.wrap { width: min(100% - 40px, 1180px); margin-inline: auto; }
 
 		/* ---- Header ---- */
 		header.site {
@@ -93,7 +93,7 @@
 		h2 { margin: 0 0 20px; font-size: clamp(24px, 3.4vw, 32px); letter-spacing: -0.01em; font-weight: 600; }
 		h3 { margin: 28px 0 10px; font-size: 15px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
 		p { margin: 0 0 16px; }
-		p.lead { color: var(--muted); max-width: 64ch; }
+		p.lead { color: var(--muted); max-width: none; }
 		.cols { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: start; }
 
 		blockquote {
@@ -125,6 +125,7 @@
 		/* figure / image slots */
 		figure { margin: 0; }
 		figure img { width: 100%; height: auto; display: block; border: 1px solid var(--hairline); border-radius: 12px; background: var(--panel); }
+		figure canvas { width: 100%; height: auto; display: block; border: 1px solid var(--hairline); border-radius: 12px; background: #000; }
 		figcaption { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
 		.specs { list-style: none; margin: 0; padding: 0; }
 		.specs li { padding: 11px 0; border-top: 1px solid var(--hairline); display: flex; gap: 12px; font-size: 15px; }
@@ -191,7 +192,7 @@
 		.hero--compact h1 br { display: none; }
 		.hero--compact p { margin: 0 auto; color: var(--muted); font-size: clamp(16px, 2vw, 19px); max-width: 52ch; }
 		.player-band { border-bottom: 1px solid var(--hairline); }
-		.player-viewport { height: 712px; overflow: hidden; display: flex; justify-content: center; background: #000; }
+		.player-viewport { height: 760px; overflow: hidden; display: flex; justify-content: center; background: #000; }
 		.player-frame { width: 1180px; height: 760px; border: 0; display: block; }
 		@media (max-width: 1200px) { .player-viewport { overflow-x: auto; } }
 	</style>
@@ -205,7 +206,7 @@
 				<a href="#what">What</a>
 				<a href="#why">Why</a>
 				<a href="#mappings">Mappings</a>
-				<a href="#scheme">Scheme</a>
+				<a href="#spectrogram">Spectrogram</a>
 			</nav>
 		</div>
 	</header>
@@ -240,6 +241,7 @@
 				&ldquo;The sound of colours is so definite that it would be hard to find anyone who would try to express bright yellow in the bass notes, or dark lake in the treble.&rdquo;
 				<cite>&mdash; Wassily Kandinsky, <i>Concerning the Spiritual in Art</i></cite>
 			</blockquote>
+			<p class="lead">Sonification &mdash; turning data relations into sound you can perceive &mdash; has no single agreed paradigm. Sonify&rsquo;s mapping is an amalgam of perceptual observations drawn from several fields, so this is as much an experiment as a tool.</p>
 			<h3>General moods associated with colors</h3>
 			<div class="moods">
 				<div class="mood" style="color:#ff5a5a"><i></i><div><b>Red</b> &nbsp;<span>Power, energy, excitement</span></div></div>
@@ -252,21 +254,9 @@
 		</div>
 	</section>
 
-	<section id="sonification">
-		<div class="wrap">
-			<p class="label"><b>03</b> Sonification</p>
-			<h2>Data you can hear.</h2>
-			<blockquote>
-				&ldquo;The transformation of data relations into perceived relations in an acoustic signal, for the purposes of facilitating communication or interpretation.&rdquo;
-				<cite>&mdash; Kramer et al., <i>Sonification Report: Status of the Field and Research Agenda</i> (1999)</cite>
-			</blockquote>
-			<p class="lead">Sonify&rsquo;s guiding principles are an amalgam of perceptual observations drawn from several fields. Research has yet to specify a complete paradigm for sonification — so this is as much an experiment as a tool.</p>
-		</div>
-	</section>
-
 	<section id="mappings">
 		<div class="wrap">
-			<p class="label"><b>04</b> Parameter mappings</p>
+			<p class="label"><b>03</b> Parameter mappings</p>
 			<h2>Every control drives the synth.</h2>
 			<p class="lead" style="margin-bottom:28px;">Each slider is wired to a specific musical parameter. Color and tone shape pitch and loudness; the red, green and blue channels each voice a different waveform; the effects become audio effects.</p>
 
@@ -308,14 +298,14 @@
 		</div>
 	</section>
 
-	<section id="scheme">
+	<section id="spectrogram">
 		<div class="wrap">
-			<p class="label"><b>05</b> Mapping scheme</p>
-			<h2>How pixels become notes.</h2>
+			<p class="label"><b>04</b> Hear it back</p>
+			<h2>The output as a spectrogram.</h2>
 			<div class="cols">
 				<figure>
-					<img src="images/image_grid.png" width="510" height="364" alt="The image is read as a grid of pitch (vertical) over time (horizontal)">
-					<figcaption>Vertical &rarr; pitch, horizontal &rarr; time.</figcaption>
+					<canvas id="liveSpec" width="1000" height="360"></canvas>
+					<figcaption>Live spectrogram of the player output &mdash; press SONIFY in the player above.</figcaption>
 				</figure>
 				<ul class="specs">
 					<li><b>Reading</b> Inverse spectrogram mapping</li>
@@ -336,13 +326,36 @@
 	</footer>
 
 	<script>
-	// The embedded player's HELP button asks the host to reveal the explainer.
-	window.addEventListener('message', function(e){
-		if(e.data && e.data.type === 'sonify-help'){
-			var t = document.getElementById('what');
-			if(t) t.scrollIntoView({ behavior: 'smooth' });
+	// Draw the spectrogram from the embedded player's live output. The player
+	// taps its master bus and postMessages frequency data while it is playing.
+	(function(){
+		var canvas = document.getElementById('liveSpec');
+		if(!canvas) return;
+		var ctx = canvas.getContext('2d');
+		var SW = canvas.width, SH = canvas.height;
+		ctx.fillStyle = '#000'; ctx.fillRect(0, 0, SW, SH);
+		function colormap(m){
+			var t = m/255, r, g, b, u;
+			if(t < 0.25){ u=t/0.25; r=0; g=0; b=Math.round(55+u*165); }
+			else if(t < 0.5){ u=(t-0.25)/0.25; r=0; g=Math.round(u*205); b=Math.round(220-u*185); }
+			else if(t < 0.75){ u=(t-0.5)/0.25; r=Math.round(u*235); g=Math.round(205+u*50); b=0; }
+			else { u=(t-0.75)/0.25; r=255; g=Math.round(255-u*220); b=0; }
+			return 'rgb('+r+','+g+','+b+')';
 		}
-	});
+		function draw(data){
+			var bins = Math.floor(data.length * 0.55);
+			ctx.drawImage(canvas, -3, 0);
+			for(var y=0;y<SH;y++){
+				var bin = Math.floor((1 - y/SH) * bins);
+				ctx.fillStyle = colormap(data[bin] || 0);
+				ctx.fillRect(SW-3, y, 3, 1);
+			}
+		}
+		window.addEventListener('message', function(e){
+			if(!e.data || e.data.type !== 'sonify-spectrum' || !e.data.data) return;
+			draw(e.data.data);
+		});
+	})();
 	</script>
 </body>
 </html>
