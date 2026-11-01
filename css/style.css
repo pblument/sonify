@@ -663,3 +663,37 @@ a#grid.locked {
 .footer a {
 	font-size: 10px;
 }
+
+/* ---- Native range input, restyled to reuse the original slider sprite ---- */
+input[type=range].slider {
+	-webkit-appearance: none;
+	appearance: none;
+	margin: 0;
+	cursor: pointer;
+	outline: none;
+	background: url('../images/btns_sprite4.png') -75px -285px no-repeat;
+}
+input[type=range].slider:focus { outline: none; }
+input[type=range].slider::-webkit-slider-runnable-track {
+	height: 18px;
+	background: transparent;
+}
+input[type=range].slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 44px;
+	height: 35px;
+	margin-top: -8px;
+	background: url('../images/btns_sprite4.png') -11px -285px no-repeat;
+}
+input[type=range].slider::-moz-range-track {
+	height: 18px;
+	background: transparent;
+}
+input[type=range].slider::-moz-range-thumb {
+	width: 44px;
+	height: 35px;
+	border: 0;
+	border-radius: 0;
+	background: url('../images/btns_sprite4.png') -11px -285px no-repeat;
+}

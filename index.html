@@ -8,28 +8,27 @@
 		<meta property="og:site_name" content="Sonify">
 		<meta property="og:description" content="Turn your pictures into sound!">
 		<meta property="og:type" content="website">
-		<meta property="og:url" content="http://sonify.net">
+		<meta property="og:url" content="https://sonify.net">
 		<meta property="og:title" content="Sonify">
-		<meta property="og:image" content="http://sonify.net/images/sonify_fb.png" />
+		<meta property="og:image" content="https://sonify.net/images/sonify_fb.png" />
 		<meta name="viewport" content="width=device-width, minimum-scale=0, maximum-scale=1.0">
 
 		<link href="favicon.ico" rel="ICON">
 		<link rel="image_src" href="images/sonify_fb.png" / >
     <link rel="stylesheet" type="text/css" href="css/style.css">
 		<link rel="stylesheet" type="text/css" href="css/introjs.css">
-
-		<script type="text/javascript">
-			  var _gaq = _gaq || [];
-			  _gaq.push(['_setAccount', 'UA-36737299-1']);
-			  _gaq.push(['_trackPageview']);
-			  (function() {
-			    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-			  })();
-			</script>
   </head>
   <body>
+
+		<!-- Native SVG filter used by the canvas for per-channel RGB gain. -->
+		<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+			<defs>
+				<filter id="channelMix" color-interpolation-filters="sRGB">
+					<feColorMatrix id="channelMixMatrix" type="matrix"
+						values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+				</filter>
+			</defs>
+		</svg>
 
   	<div id="bg"></div>
 		<div class="loader" style="display: none;"></div>
@@ -69,7 +68,7 @@
 					<div class="control">
           	 <p>VOLUME</p>
              <span class="volumeTip tooltip"></span>
-             <div id="volume" class="slider" data-default="50"></div>
+             <input type="range" min="0" max="100" id="volume" class="slider" value="50" data-default="50">
           </div>
 				</div>
 				<!-- END TRANSPORT -->
@@ -86,7 +85,7 @@
         <div class="sliderBankRight" data-step="4" data-intro="<b>4/6:</b> Try using these effects, too." data-position="left"></div>
 
         <div class="footer">
-		 	  <p>&copy; 2019 by <a href="http://www.piablumenthal.com" target="_blank">Pia Blumenthal</a></p>
+		 	  <p>&copy; 2012 by <a href="https://www.piablumenthal.com" target="_blank" rel="noopener">Pia Blumenthal</a></p>
 	   	</div>
 		</div>
 		<!--END CONTENT-->
@@ -94,9 +93,6 @@
     </section>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-    <script src="js/pixastic.core.js"></script>
-    <script src="js/pixastic.complete.js"></script>
     <script src="js/fft.js"></script>
     <script src="js/bpm-delay.js"></script>
     <script src="js/waveshaper.js"></script>

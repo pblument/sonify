@@ -108,7 +108,7 @@ $(document).ready(function() {
 			 '<div class="control">'+
 			 '<p>'+filterArray[i].filter+'</p>'+
 			 '<span class="tooltip"></span>'+
-			 '<div id="'+filterArray[i].filter+'" class="slider" data-default="'+filterArray[i].default+'"></div>'+
+			 '<input type="range" min="0" max="100" id="'+filterArray[i].filter+'" class="slider" value="'+filterArray[i].default+'" data-default="'+filterArray[i].default+'">'+
 			 '</div>'
 		 );
 	}
@@ -118,13 +118,14 @@ $(document).ready(function() {
 			 '<div class="control">'+
 			 '<p>'+filterArray[i].filter+'</p>'+
 			 '<span class="tooltip"></span>'+
-			 '<div id="'+filterArray[i].filter+'" class="slider" data-default="'+filterArray[i].default+'"></div>'+
+			 '<input type="range" min="0" max="100" id="'+filterArray[i].filter+'" class="slider" value="'+filterArray[i].default+'" data-default="'+filterArray[i].default+'">'+
 			 '</div>'
 		 );
 	}
 	//console.log("on load", filterArray);
 	initSynth(filterArray);
 	initSliders(filterArray);
+	bindSliders(filterArray);
 
 	$('.filters, .playBtn, #resetBtn, #flipVertical, #flipHorizontal, #grid').click(function(e) {
 		e.preventDefault();
@@ -137,6 +138,11 @@ $(document).ready(function() {
 	});
 
 	$('.playBtn').click(function(e){
+		// Modern browsers start the AudioContext suspended; resume it on this
+		// user gesture so playback reliably produces sound.
+		if(typeof context !== 'undefined' && context && context.resume) {
+			context.resume();
+		}
 		$('#playBack').toggleClass('stopBtn');
 		if(! $('#playBack').hasClass('stopBtn')) {
 			playStatus = false;
@@ -181,31 +187,33 @@ function initSynth(filterArray) {
 }
 
 function initSliders(filterArray) {
-	// console.log('initSliders');
+	// Set each native range input to its default and sync the tooltip.
 	$('.slider').each(function(index, item) {
-		$(item).slider({value: $(item).data('default')});
+		item.value = $(item).data('default');
 		$(item).parent().find('.tooltip').text($(item).data('default'));
 	});
-	
-	updateSliders(filterArray);
-	initFilters(filterArray);
 }
 
-function initFilters(filterArray) {
-	// console.log('initFilters');
-	filterArray[0].value = ((filterArray[0].value - 50)*18)/5; //hue
-	filterArray[1].value = ((filterArray[1].value - 50)*10)/5; //saturation
-	filterArray[2].value = ((filterArray[2].value - 50)*10)/5; //lightness
-	filterArray[3].value = filterArray[3].value-50; //contrast
-	if(filterArray[3].value < 0) {
-		filterArray[3].value = filterArray[3].value/50;
-	} else {
-		filterArray[3].value = (filterArray[3].value/50)*4;
-	}
-	filterArray[4].value = ((filterArray[4].value - 50)*15)/5; //brightness
-	filterArray[5].value = (filterArray[5].value - 50)/50; //red
-	filterArray[6].value = (filterArray[6].value - 50)/50; //green
-	filterArray[7].value = (filterArray[7].value - 50)/50; //blue
+// Bind native range-input events once, delegated so dynamically-added
+// sliders are covered. 'input' fires live during the drag (old jQuery UI
+// "slide"); 'change' fires on release (old "stop").
+function bindSliders(filterArray) {
+	$(document).on('input', '.slider', function() {
+		$(this).parent().find('.tooltip').text(this.value);
+		if(this.id == 'volume') volume = this.value/100;
+	});
+
+	$(document).on('change', '.slider', function() {
+		if(this.id == 'volume') return;
+		for(var i = 0; i < filterArray.length; i++) {
+			if(this.id == filterArray[i].filter) {
+				filterArray[i].value = parseInt(this.value, 10);
+				saved = filterArray[i];
+				redrawSynth(saved);
+				redrawImage(saved);
+			}
+		}
+	});
 }
 
 function drawPreset(imgPreset, filterArray) {
@@ -226,34 +234,6 @@ function resetImage(filterArray) {
 	initSliders(filterArray);
 	drawImage(imageObj);
 	bandify(numberOfRows,numberOfCols);
-}
-
-function updateSliders(filterArray) {
-	// console.log('updateSliders');
-
-	$('.slider').slider({
-		range: "min",
-		slider: 1,
-		min: 0,
-		max: 100,
-
-		slide: function(event, ui) {
-			var value  = $(this).slider('value');
-			$(this).parent().find('.tooltip').text(ui.value);
-			if($(this).attr('id') == 'volume') volume = ui.value/100;
-		},
-
-		stop: function(event,ui) {
-			for(var i = 0; i < filterArray.length; i++) {
-				if($(this).attr('id') == filterArray[i].filter) {
-					filterArray[i].value = ui.value;
-					saved = filterArray[i];
-					redrawSynth(saved);
-					redrawImage(saved);
-				}
-			}
-		}
-	});
 }
 
 function redrawSynth(filtered) {
@@ -279,84 +259,61 @@ function redrawSynth(filtered) {
 	}
 }
 
+// Map the raw slider value (held in filterArray[i].value) for a filter name.
+function filterValue(name) {
+	for(var i = 0; i < filterArray.length; i++) {
+		if(filterArray[i].filter == name) return filterArray[i].value;
+	}
+	return 0;
+}
+
+// Update the SVG feColorMatrix used for per-channel RGB gain. Each channel
+// slider is 0-100 with 50 = unchanged, so gain = value/50 (0..2).
+function setChannelMix(r, g, b) {
+	var m = document.getElementById('channelMixMatrix');
+	if(m) {
+		m.setAttribute('values',
+			r + ' 0 0 0 0  0 ' + g + ' 0 0 0  0 0 ' + b + ' 0 0  0 0 0 1 0');
+	}
+}
+
 function redrawImage(filtered) {
-	// console.log('redrawImage');
-	//NEED BETTER SOLUTION FOR PREVENTING IMAGE FILTERS FROM OVERRIDING EACH OTHER
-	imageObj = imageStore;
-	
+	// Keep filterArray holding the raw 0-100 slider value for this filter.
 	if(filtered) {
-		switch(filtered.filter) {
-			case 'hue':
-				filterArray[0].value = ((filtered.value - 50)*18)/5;
-				// console.log(filterArray[0].value, filterArray[1].value, filterArray[2].value);
+		for(var i = 0; i < filterArray.length; i++) {
+			if(filterArray[i].filter == filtered.filter) {
+				filterArray[i].value = filtered.value;
 				break;
-			case 'saturation':
-				filterArray[1].value = ((filtered.value - 50)*10)/5;
-				break;
-			case 'lightness':
-				filterArray[2].value = ((filtered.value - 50)*10)/5;
-				break;
-			case 'contrast':
-				filterArray[3].value = filtered.value-50;
-				if(filterArray[3].value < 0) {
-					filterArray[3].value = filtered.value/50;
-				} else {
-					filterArray[3].value = (filtered.value/50)*4;
-				}
-				break;
-			case 'brightness':
-				filterArray[4].value = ((filtered.value - 50)*15)/5;
-				break;
-			case 'red':
-				filterArray[5].value = (filtered.value - 50)/50;
-				break;
-			case 'green':
-				filterArray[6].value = (filtered.value - 50)/50;
-				break;
-			case 'blue':
-				filterArray[7].value = (filtered.value - 50)/50;
-				break;
-			case 'blur':
-				filterArray[8].value = filtered.value/20;
-				break;
-			case 'sharpen':
-				filterArray[9].value = filtered.value/100;
-				break;
-			case 'glow':
-				filterArray[10].value = filtered.value/100;
-				break;
-			case 'noise':
-				filterArray[11].value = filtered.value/100;
-				break;
+			}
 		}
 	}
-	//console.log(filterArray);
-	imageObj = Pixastic.process(imageObj, "hsl", {hue:filterArray[0].value,saturation:filterArray[1].value,lightness:filterArray[2].value});
-	imageObj = Pixastic.process(imageObj, "brightness", {brightness:filterArray[4].value,contrast:filterArray[3].value});
-	imageObj = Pixastic.process(imageObj, "coloradjust", {red:filterArray[5].value,green:filterArray[6].value,blue:filterArray[7].value});
-	imageObj = Pixastic.process(imageObj, "blurfast", {amount:filterArray[8].value});
-	imageObj = Pixastic.process(imageObj, "sharpen", {amount:filterArray[9].value});
-	imageObj = Pixastic.process(imageObj, "glow", {amount:filterArray[10].value,radius:1.0});
-	imageObj = Pixastic.process(imageObj, "noise", {mono:true,amount:filterArray[11].value,strength:1});
 
-	// var tempImgObj = imageObj;
-	//
-	// if(flipvTrue) {
-	// 	imageObj = Pixastic.process(imageObj, "flipv");
-	// 	tempImgObj = imageObj;
-	// 	flipvTrue = false;
-	// } else {
-	// 	imageObj = Pixastic.process(tempImgObj, "flipv");
-	// }
-	// if(fliphTrue) {
-	// 	imageObj = Pixastic.process(imageObj, "fliph");
-	// 	tempImgObj = imageObj;
-	// 	fliphTrue = false;
-	// } else {
-	// 	imageObj = Pixastic.process(tempImgObj, "fliph");
-	// }
-	
-	document.getElementById('theCanvas').getContext('2d').drawImage(imageObj,0,0,460,320);
+	// Bipolar sliders (hue/saturation/lightness/contrast/brightness/r/g/b) are
+	// neutral at 50; additive sliders (blur) are neutral at 0. Build a native
+	// canvas filter string and bake it into the pixels by drawing the clean
+	// source through it — bandify() then reads those filtered pixels, so the
+	// sound still reacts to every slider.
+	setChannelMix(filterValue('red')/50, filterValue('green')/50, filterValue('blue')/50);
+
+	var hue        = (filterValue('hue') - 50) * 3.6;          // +/-180deg
+	var saturation = filterValue('saturation') / 50;           // 0..2
+	var brightness = (filterValue('brightness')/50) * (filterValue('lightness')/50);
+	var contrast   = filterValue('contrast') / 50;             // 0..2
+	var blur       = filterValue('blur') / 20;                 // 0..5 px
+
+	var canvas = document.getElementById('theCanvas');
+	var ctx = canvas.getContext('2d');
+	ctx.filter =
+		'hue-rotate(' + hue + 'deg) ' +
+		'saturate(' + saturation + ') ' +
+		'brightness(' + brightness + ') ' +
+		'contrast(' + contrast + ') ' +
+		'blur(' + blur + 'px) ' +
+		'url(#channelMix)';
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.drawImage(imageStore, 0, 0, 460, 320);
+	ctx.filter = 'none';
+
 	bandify(numberOfRows,numberOfCols);
 }
 		
